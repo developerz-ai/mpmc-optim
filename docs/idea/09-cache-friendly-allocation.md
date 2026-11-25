@@ -25,12 +25,12 @@ Defined by [P0154R1](https://wg21.link/p0154r1) as `std::hardware_destructive_in
 
 Header-only library + two translation units built with different `-mtune` + a layout that depends on the std constant = two layouts for one type. That is an ODR violation with no diagnostic.
 
-**Rule.** The library defines its own constant, fixed per architecture, overridable by one macro that the build system sets for every TU. `static_assert` it is at least the std value.
+**Rule.** The library defines its own constant, fixed per architecture, overridable by one macro that the build system sets for every TU. Do not `static_assert` it against the std value: GCC 15 and Clang 22 report 256 on generic AArch64 (seen in this repo's Arm CI, 2026-11), so the assert fails there and would tie the layout check to tuning flags.
 
 | Architecture | `destructive_size` (proposed default) | Why |
 |---|---|---|
 | x86-64 | 128 | 64-byte lines fetched in pairs by the adjacent-line prefetcher |
-| aarch64 | 128 | Apple silicon reports 128-byte lines; costs little elsewhere |
+| aarch64 | 128 | Apple silicon reports 128-byte lines; costs little elsewhere. Cores with 256-byte lines (A64FX) need the override macro |
 | ppc64 | 128 | 128-byte lines |
 | s390x | 256 | 256-byte lines |
 | other | 64 | |
@@ -59,17 +59,6 @@ inline constexpr std::size_t destructive_size = 128;
 inline constexpr std::size_t destructive_size = 64;
 #endif
 inline constexpr std::size_t constructive_size = 64;
-
-#if defined(__cpp_lib_hardware_interference_size)
-#if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Winterference-size"  // used in an assert, never in a layout
-#endif
-static_assert(destructive_size >= std::hardware_destructive_interference_size);
-#if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic pop
-#endif
-#endif
 
 // Members ordered by writer, not by "logical" grouping.
 struct ring_header {
