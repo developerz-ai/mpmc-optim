@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Fresh clone to a working gate.
+set -euo pipefail
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+
+command -v bun >/dev/null || { echo "bun not found: https://bun.sh" >&2; exit 1; }
+for cxx in ${MPMC_CXX:-clang++ g++}; do
+  command -v "$cxx" >/dev/null || { echo "$cxx not found: install it or set MPMC_CXX" >&2; exit 1; }
+done
+bun install --frozen-lockfile
+bin/check

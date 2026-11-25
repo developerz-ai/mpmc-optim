@@ -1,0 +1,29 @@
+name: release
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    uses: ./.github/workflows/ci.yml
+
+  publish:
+    needs: gate
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ github.ref_name }}
+    steps:
+      # v0.x is marked prerelease: the API may change.
+      - run: |
+          flags=()
+          case "$TAG" in v0.*) flags+=(--prerelease) ;; esac
+          gh release create "$TAG" --verify-tag --generate-notes --title "$TAG" "${flags[@]}"

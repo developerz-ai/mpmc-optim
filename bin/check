@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# The gate. CI runs exactly this command.
+set -euo pipefail
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+
+bunx biome check scripts
+bunx tsc --noEmit
+bun test scripts
+bun scripts/check-docs.ts
+bun scripts/check-snippets.ts

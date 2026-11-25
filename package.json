@@ -1,0 +1,20 @@
+{
+  "name": "mpmc-optim-tools",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "bin/check",
+    "check:docs": "bun scripts/check-docs.ts",
+    "check:snippets": "bun scripts/check-snippets.ts",
+    "help": "bun scripts/help.ts",
+    "fmt": "biome check --write scripts",
+    "lint": "biome check scripts",
+    "test": "bun test scripts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.8",
+    "@types/bun": "1.4.5",
+    "typescript": "7.0.2"
+  }
+}
