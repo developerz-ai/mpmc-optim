@@ -1,0 +1,23 @@
+version: 2
+# Monthly and grouped: pre-release repo, a PR per patch release is noise.
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 14
+    groups:
+      actions:
+        patterns: ["*"]
+        update-types: [minor, patch]
+  - package-ecosystem: bun
+    directory: /
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 14
+    groups:
+      bun:
+        patterns: ["*"]
+        update-types: [minor, patch]
